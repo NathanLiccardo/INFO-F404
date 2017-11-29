@@ -8,10 +8,10 @@ class Task:
 		
 	def checkLine(self, line):
 		if len(line) == 4:
-			self._offset    = line[0]
-			self._period    = line[1]
-			self._deadline  = line[2]
-			self._wcet 		= line[3]
+			self._offset    = int(line[0])
+			self._period    = int(line[1])
+			self._deadline  = int(line[2])
+			self._wcet 		= int(line[3])
 		else:
 			print("input file error")
 

@@ -2,6 +2,7 @@
 
 from file import File
 from task import Task
+from audsley import Audsley
 import sys
 
 
@@ -14,7 +15,8 @@ def main():
 			_index = len(_tasks)+1
 			_tasks.append(Task(_index, _line))
 			_line = _file.getLine()
-			print("ok")
+		_audsley = Audsley(_tasks)
+		_audsley.feasibility()
 	else:
 		print("Arg file is missing")
   
