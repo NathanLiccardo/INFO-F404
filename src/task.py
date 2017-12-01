@@ -5,7 +5,7 @@ class Task:
 	def __init__(self, id, line):
 		self._id = id
 		self.checkLine(line)
-		
+
 	def checkLine(self, line):
 		if len(line) == 4:
 			self._offset    = int(line[0])
@@ -38,3 +38,6 @@ class Task:
 
 	def getWcet(self):
 		return self._wcet
+
+	def getIndex(self):
+		return self._id

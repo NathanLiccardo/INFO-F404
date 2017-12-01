@@ -2,36 +2,28 @@
 
 class Audsley:
 
-	def __init__(self,tasks):
-		self._tasks = tasks
+	def __init__(self):
+		self._result = []
+		self._checked = []
+		self._space = 0
 
-	def gcd(self,valA, valB):
-		while valB != 0:
-			valA,valB = valB, valA%valB
-		return valA
+	def isLowesPriorityViable(self,task,tasks):
+		# TODO : return if the task is LPV
+		return True
 
-	def lcm(self,values):
-		while len(values) > 1:
-			valA = values[0]
-			valB = values[1]
-			values = values[1:]
-			values[0] = valA*valB / self.gcd(valA, valB) 
-		return values[0]
-
-	def getOmax(self):
-		offsets = []
-		for task in self._tasks:
-			offsets.append(task.getOffset())
-		return max(offsets)
-
-	def getLcmPeriod(self):
-		period = []
-		for task in self._tasks:
-			period.append(task.getPeriod())
-		return self.lcm(period)
-
-	def feasibility(self):
-		self._Omax = int(self.getOmax())
-		self._Plcm = self.getLcmPeriod()
-		self._Plcm = int(self._Omax+(2*self._Plcm))
-		print(str(self._Omax)+" , "+str(self._Plcm))
+	def audsley(self, tasks):
+		for index in range(len(tasks)-1):
+			if (self.isLowesPriorityViable(tasks[index], tasks)):
+				print(self._space*" ", end="")
+				print("Task "+str(tasks[index].getIndex()), end="")
+				print(" : is lowest priority viable")
+				self._space += 1
+				if (index != len(tasks)-1):
+					self.audsley(tasks[:index]+tasks[index+1:])
+				else:
+					self.audsley(tasks[:index])
+				self._space -= 1
+			else:
+				print(self._space*" ", end="")
+				print("Task "+str(tasks[index].getIndex()), end="")
+				print(" : is not lowest priority viable")

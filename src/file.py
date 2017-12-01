@@ -1,5 +1,7 @@
 #!/usr/bin/python3
 
+from task import Task
+
 class File:
 
 	def __init__(self, filename):
@@ -12,6 +14,14 @@ class File:
 		self._lines = self._file.readlines()
 		self._size = len(self._lines)
 
+	def getTasks(self):
+		_tasks = []
+		_line = self.getLine()
+		while _line != None:
+			_tasks.append(Task(self._state, _line))
+			_line = self.getLine()
+		return _tasks
+
 	def getLine(self):
 		if (self._state < self._size):
 			line = self._lines[self._state]
@@ -20,5 +30,5 @@ class File:
 			return line
 		return None
 
-	def closeFile(self):
+	def close(self):
 		self._file.close()
