@@ -12,7 +12,7 @@ class Audsley:
 		return True
 
 	def audsley(self, tasks):
-		for index in range(len(tasks)-1):
+		for index in range(len(tasks)):
 			if (self.isLowesPriorityViable(tasks[index], tasks)):
 				print(self._space*" ", end="")
 				print("Task "+str(tasks[index].getIndex()), end="")

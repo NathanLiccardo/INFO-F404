@@ -30,8 +30,19 @@ class Feasibility:
             period.append(task.getPeriod())
         return self.lcm(period)
 
+    def getPeriod(self):
+        return self.getLcmPeriod()
+
+    def getStart(self):
+        return int(self.getOmax())
+
+    def getStop(self):
+        return int( (self.getLcmPeriod()*2) + self.getOmax() )
+
     def printSet(self):
-        self._Omax = int(self.getOmax())
-        self._Plcm = self.getLcmPeriod()
-        self._Plcm = int(self._Omax+(2*self._Plcm))
-        print(str(self._Omax)+" , "+str(self._Plcm))
+        Omax = int(self.getOmax())
+        Plcm = self.getLcmPeriod()
+        Plcm = int(Omax+(2*Plcm))
+        print("Interval : [", end="")
+        print(str(Omax), end="")
+        print(","+str(Plcm)+")")
