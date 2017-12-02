@@ -23,9 +23,10 @@ def main():
 		_simulator.printResultsS()
 		_simulator.utilisation()
 		_simulator.printResultU()
+		_simulator.plot()
 		# Execute audsley algorithm
-		_audsley = Audsley()
-		_audsley.audsley(_tasks)
+		#_audsley = Audsley()
+		#_audsley.audsley(_tasks)
 	else:
 		print("Arg file is missing")
 

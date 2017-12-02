@@ -36,48 +36,99 @@ class Simulator:
 			Ti = task.getPeriod()
 			self._use += Ci/Ti
 
-	def checkInterrupt(self, indexCurrent):
-		for index in len(self._deadlines):
-			self._deadlines[index][0] += 1
-			save1 = self._deadlines[index][0]
-			save2 = self._deadlines[index][1]
-			if (index < indexCurrent):
-				if (save1 == save2):
-					self._interrupt = True
-					self._interruptIndex = index
-					self._deadlines[index][0] = 0
-			if (index == indexCurrent):
-				if (save1 == save2):
-					self._deadlines[index][0] = 0
-			if (index > indexCurrent):
-				if (save1 == save2):
-					print("Miss a deadline")
+
+	# Structure[i] = [WCET, Period, Deadline, CurrentAdv, WaitingFrom]
+	def plot(self):
+		self.initStructure()
+		time = self._interval[0]
+		stop = self._interval[1]
+		current = 0
+		start = 0
+		while( time < stop ):
+			self.checkArrivals(time)
+			self.checkDeadlines(time)
+
+			index = self.getNext()
+			if (index != current):
+				self.printInterval(time, current, start)
+				start = time
+				current = index
+			self.updateSystem(index)
+			time += 1
+
+	def initStructure(self):
+		self._counterJobs = []
+		self._structure = []
+		for index in range(len(self._tasks)):
+			current = []
+			current.append(self._tasks[index].getWcet())
+			current.append(self._tasks[index].getPeriod())
+			current.append(self._tasks[index].getDeadline())
+			current.append(0)
+			current.append(0)
+			self._structure.append(current)
+			self._counterJobs.append(0)
+
+	def checkArrivals(self, time):
+		for index in range(len(self._structure)):
+			current = self._structure[index]
+			counter = self._counterJobs[index]
+			if ((current[3] == current[0] and current[4] == current[1]) or \
+				(current[3] == 0 and current[4] == 0)):
+				self.printArrival(time, current, index, counter)
+
+	def getNext(self):
+		for index in range(len(self._structure)):
+			current = self._structure[index]
+			# Check WCET
+			if (current[3] >= 0 and current[3] < current[0]):
+				return index
+			# Check Period
+			if (current[3] == current[1]):
+				return index
+		return None
+
+	def checkDeadlines(self, time):
+		for index in range(len(self._structure)):
+			current = self._structure[index]
+			counter = self._counterJobs[index]
+
+			# Check missing deadline
+			if (current[3] < current[0] and current[4] == current[2]):
+				self.printDeadlineMiss(time, index, counter)
+
+			# Check task complete
+			if (current[3] == current[0] and current[4] == current[1]):
+				self._counterJobs[index] += 1
+				self.printDeadline(time, index, counter)
+				self._structure[index][3:] = [0,0]
+
+	def updateSystem(self, index):
+		for i in range(len(self._structure)):
+			if (index != None and i == index):
+				self._structure[index][3] += 1
+			self._structure[i][4] += 1
 
 
-	def plotResult(self):
-		timeCurrent,indexCurrent = 0,0
-		time,current = self._start,self._tasks[indexCurrent]
-		self._interrupt,self._deadlines = False,[]
+	# Print results
 
-		for index in len(self._tasks):
-			startVal = 0
-			deadline = self._tasks.getDeadline()
-			self._deadlines.append([startVal,deadline])
+	def printInterval(self, time, index, start):
+		if (index != None):
+			print(str(start)+"-"+str(time), end="")
+			print(": T"+str(index+1), end="")
+			print("J"+str(self._counterJobs[index]+1))
 
-		while (time < self._stop):
-			while( !self._interrupt and timeCurrent < current.getWcet()):
-				time += 1
-				timeCurrent += 1
-				self.checkInterrupt(indexCurrent)
-			if (self._interrupt):
-				self._interrupt = False
-				timeCurrent = 0
-				indexCurrent = self._interruptIndex
-			else:
-				if (indexCurrent == len(self._tasks)-1):
-					indexCurrent = 0
-				else:
-					indexCurrent += 1
+	def printDeadlineMiss(self, time, index, counter):
+		print(str(time)+" : Job T", end="")
+		print(str(index+1)+"J"+str(counter), end="")
+		print(" : misses a deadline")
+
+	def printDeadline(self, time, index, counter):
+		print(str(time)+" : Deadline of job T", end="")
+		print(str(index+1)+"J"+str(counter-1))
+
+	def printArrival(self, time, current, index, counter):
+		print(str(time)+" : Arrival of job T"+str(index+1)+"J"+str(counter+1))
 
 	def printResultsS(self):
 		for index in range(len(self._resultS)):
