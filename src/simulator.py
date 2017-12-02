@@ -45,16 +45,22 @@ class Simulator:
 		current = 0
 		start = 0
 		while( time < stop ):
-			self.checkArrivals(time)
-			self.checkDeadlines(time)
+			deadlines = self.checkDeadlines(time)
+			arrivals = self.checkArrivals(time)
 
 			index = self.getNext()
 			if (index != current):
 				self.printInterval(time, current, start)
 				start = time
 				current = index
+			arrivals += deadlines
+			for i in arrivals:
+				print(i)
 			self.updateSystem(index)
 			time += 1
+		deadlines = self.checkDeadlines(time)
+		for i in deadlines:
+			print(i)
 
 	def initStructure(self):
 		self._counterJobs = []
@@ -70,12 +76,15 @@ class Simulator:
 			self._counterJobs.append(0)
 
 	def checkArrivals(self, time):
+		arrivals = []
 		for index in range(len(self._structure)):
 			current = self._structure[index]
 			counter = self._counterJobs[index]
 			if ((current[3] == current[0] and current[4] == current[1]) or \
 				(current[3] == 0 and current[4] == 0)):
-				self.printArrival(time, current, index, counter)
+				arrivals.append(self.arrivalText(time, current, index, counter))
+		return arrivals
+
 
 	def getNext(self):
 		for index in range(len(self._structure)):
@@ -89,19 +98,21 @@ class Simulator:
 		return None
 
 	def checkDeadlines(self, time):
+		deadlines = []
 		for index in range(len(self._structure)):
 			current = self._structure[index]
 			counter = self._counterJobs[index]
 
 			# Check missing deadline
 			if (current[3] < current[0] and current[4] == current[2]):
-				self.printDeadlineMiss(time, index, counter)
+				deadlines.append(self.deadlinemissText(time, index, counter))
 
 			# Check task complete
 			if (current[3] == current[0] and current[4] == current[1]):
 				self._counterJobs[index] += 1
-				self.printDeadline(time, index, counter)
+				deadlines.append(self.deadlineText(time, index, counter))
 				self._structure[index][3:] = [0,0]
+		return deadlines
 
 	def updateSystem(self, index):
 		for i in range(len(self._structure)):
@@ -118,17 +129,14 @@ class Simulator:
 			print(": T"+str(index+1), end="")
 			print("J"+str(self._counterJobs[index]+1))
 
-	def printDeadlineMiss(self, time, index, counter):
-		print(str(time)+" : Job T", end="")
-		print(str(index+1)+"J"+str(counter), end="")
-		print(" : misses a deadline")
+	def deadlinemissText(self, time, index, counter):
+		return (str(time)+" : Job T"+str(index+1)+"J"+str(counter)+" : misses a deadline")
 
-	def printDeadline(self, time, index, counter):
-		print(str(time)+" : Deadline of job T", end="")
-		print(str(index+1)+"J"+str(counter-1))
+	def deadlineText(self, time, index, counter):
+		return (str(time)+" : Deadline of job T"+str(index+1)+"J"+str(counter+1))
 
-	def printArrival(self, time, current, index, counter):
-		print(str(time)+" : Arrival of job T"+str(index+1)+"J"+str(counter+1))
+	def arrivalText(self, time, current, index, counter):
+		return (str(time)+" : Arrival of job T"+str(index+1)+"J"+str(counter+1))
 
 	def printResultsS(self):
 		for index in range(len(self._resultS)):
