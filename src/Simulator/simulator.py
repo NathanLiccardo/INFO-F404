@@ -10,7 +10,7 @@ class Simulator:
 	"""
 	Structure[i] = [WCET, Period, Deadline, CurrentAdv, WaitingFrom]
 	"""
-	def plot(self, start, stop):
+	def plot(self, start, stop, typeDeadlines):
 		result = []
 		# Init variable
 		current = 0
@@ -19,7 +19,10 @@ class Simulator:
 		# Time loop
 		while( time < stop ):
 			# checkDeadlines and Arrivals
-			deadlines = self.checkDeadlines(time)
+			if (typeDeadlines == "hard"):
+				deadlines = self.checkDeadlinesHard(time)
+			else:
+				deadlines = self.checkDeadlinesSoft(time)
 			arrivals = self.checkArrivals(time)
 			arrivals = arrivals+deadlines
 			# Apply the run
@@ -34,7 +37,10 @@ class Simulator:
 			self.updateSystem(index)
 			time += 1
 		# Check system at the end
-		deadlines = self.checkDeadlines(time)
+		if (typeDeadlines == "hard"):
+			deadlines = self.checkDeadlinesHard(time)
+		else:
+			deadlines = self.checkDeadlinesSoft(time)
 		return result+deadlines
 
 	def initStructure(self):
@@ -69,7 +75,26 @@ class Simulator:
 				return index
 		return None
 
-	def checkDeadlines(self, time):
+	def checkDeadlinesHard(self, time):
+		deadlines = []
+		for index in range(len(self._structure)):
+			current = self._structure[index]
+			counter = self._counterJobs[index]
+
+			# Check missing deadline
+			if (current[3] < current[0] and current[4] == current[2]):
+				self._counterJobs[index] += 1
+				deadlines.append(self.deadlinemissText(time, index, counter))
+				self._structure[index][3:] = [0,0]
+
+			# Check task complete
+			if (current[3] == current[0] and current[4] == current[1]):
+				self._counterJobs[index] += 1
+				deadlines.append(self.deadlineText(time, index, counter))
+				self._structure[index][3:] = [0,0]
+		return deadlines
+
+	def checkDeadlinesSoft(self, time):
 		deadlines = []
 		for index in range(len(self._structure)):
 			current = self._structure[index]
@@ -95,7 +120,7 @@ class Simulator:
 
 	# Get results
 	def printResult(self,start,stop):
-		print("".join(self.plot(start,stop)),end="")
+		print("".join(self.plot(start,stop,"hard")),end="")
 
 	def intervalText(self, time, index, start):
 		return (str(start)+"-"+str(time)+": T"+str(index+1)+"J"+str(self._counterJobs[index]+1)+'\n')
@@ -109,6 +134,6 @@ class Simulator:
 	def arrivalText(self, time, current, index, counter):
 		return (str(time)+": Arrival of job T"+str(index+1)+"J"+str(counter+1)+'\n')
 
-	def getSchedule(self,interval0,interval1):
-		result = self.plot(interval0,interval1)
+	def getSchedule(self,interval0,interval1,type):
+		result = self.plot(interval0,interval1,type)
 		return result
