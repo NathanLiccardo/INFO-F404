@@ -4,11 +4,12 @@ from stack import Stack
 
 class Simulator:
 
-	def __init__(self, start, stop, tasks):
+	def __init__(self, start, stop, tasks, period):
 		self._start = start
 		self._stop = stop
 		self._tasks = tasks
 		self._inerval = [0]
+		self._period = period
 
 	def getTopValue(self, value):
 		if (value % 1) > 0:
@@ -36,9 +37,13 @@ class Simulator:
 			Ti = task.getPeriod()
 			self._use += Ci/Ti
 
+	def getInterval(self):
+		self.calculateS(self._period)
+		return (self._interval)
+
 
 	# Structure[i] = [WCET, Period, Deadline, CurrentAdv, WaitingFrom]
-	def plot(self):
+	def plot(self, start, stop):
 		self.initStructure()
 		time = self._interval[0]
 		stop = self._interval[1]

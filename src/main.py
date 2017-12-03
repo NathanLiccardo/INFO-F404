@@ -18,12 +18,9 @@ def main():
 		# Simulator part
 		_start = _feasibility.getStart()
 		_stop = _feasibility.getStop()
-		_simulator = Simulator(_start, _stop, _tasks)
-		_simulator.calculateS(_feasibility.getPeriod())
-		_simulator.printResultsS()
-		_simulator.utilisation()
-		_simulator.printResultU()
-		_simulator.plot()
+		_simulator = Simulator(_start, _stop, _tasks, _feasibility.getPeriod())
+		_interval = _simulator.getInterval()
+		_simulator.plot(_interval[0], _interval[1])
 		# Execute audsley algorithm
 		#_audsley = Audsley()
 		#_audsley.audsley(_tasks)
