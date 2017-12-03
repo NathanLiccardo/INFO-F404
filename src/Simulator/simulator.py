@@ -7,41 +7,44 @@ class Simulator:
 	def __init__(self, tasks):
 		self._tasks = tasks
 
-	# Structure[i] = [WCET, Period, Deadline, CurrentAdv, WaitingFrom]
+	"""
+	Structure[i] = [WCET, Period, Deadline, CurrentAdv, WaitingFrom]
+	"""
 	def plot(self, start, stop):
-		self.initStructure()
-		time = start
+		# Init variable
 		current = 0
+		time = start
+		self.initStructure()
+		# Time loop
 		while( time < stop ):
+			# checkDeadlines and Arrivals
 			deadlines = self.checkDeadlines(time)
 			arrivals = self.checkArrivals(time)
-
+			arrivals = arrivals+deadlines
+			# Apply the run
 			index = self.getNext()
-			if (index != current):
-				self.printInterval(time, current, start)
+			if (index != current and current != None):
+				print(self.intervalText(time, current, start), end="")
+			if (index != current)
 				start = time
 				current = index
-			arrivals += deadlines
-			for i in arrivals:
-				print(i)
+			#Update the system and print results
+			print("".join(arrivals), end="")
 			self.updateSystem(index)
 			time += 1
+		# Check system at the end
 		deadlines = self.checkDeadlines(time)
-		for i in deadlines:
-			print(i)
+		print("".join(deadlines))
 
 	def initStructure(self):
-		self._counterJobs = []
-		self._structure = []
+		# Init structure before the execution
+		self._structure = [[] for i in range(len(self._tasks))]
+		self._counterJobs = [0 for i in range(len(self._tasks))]
 		for index in range(len(self._tasks)):
-			current = []
-			current.append(self._tasks[index].getWcet())
-			current.append(self._tasks[index].getPeriod())
-			current.append(self._tasks[index].getDeadline())
-			current.append(0)
-			current.append(0)
-			self._structure.append(current)
-			self._counterJobs.append(0)
+			self._structure[index].append(self._tasks[index].getWcet())
+			self._structure[index].append(self._tasks[index].getPeriod())
+			self._structure[index].append(self._tasks[index].getDeadline())
+			self._structure[index].extend((0,0))
 
 	def checkArrivals(self, time):
 		arrivals = []
@@ -90,19 +93,14 @@ class Simulator:
 
 
 	# Print results
-
-	# Print results
-	def printInterval(self, time, index, start):
-		if (index != None):
-			print(str(start)+"-"+str(time), end="")
-			print(": T"+str(index+1), end="")
-			print("J"+str(self._counterJobs[index]+1))
+	def intervalText(self, time, index, start):
+		return (str(start)+"-"+str(time)+": T"+str(index+1)+"J"+str(self._counterJobs[index]+1)+'\n')
 
 	def deadlinemissText(self, time, index, counter):
-		return (str(time)+" : Job T"+str(index+1)+"J"+str(counter)+" : misses a deadline")
+		return (str(time)+" : Job T"+str(index+1)+"J"+str(counter)+" : misses a deadline"+'\n')
 
 	def deadlineText(self, time, index, counter):
-		return (str(time)+" : Deadline of job T"+str(index+1)+"J"+str(counter+1))
+		return (str(time)+" : Deadline of job T"+str(index+1)+"J"+str(counter+1)+'\n')
 
 	def arrivalText(self, time, current, index, counter):
-		return (str(time)+" : Arrival of job T"+str(index+1)+"J"+str(counter+1))
+		return (str(time)+" : Arrival of job T"+str(index+1)+"J"+str(counter+1)+'\n')
