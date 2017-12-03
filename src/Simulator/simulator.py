@@ -11,6 +11,7 @@ class Simulator:
 	Structure[i] = [WCET, Period, Deadline, CurrentAdv, WaitingFrom]
 	"""
 	def plot(self, start, stop):
+		result = []
 		# Init variable
 		current = 0
 		time = start
@@ -23,18 +24,18 @@ class Simulator:
 			arrivals = arrivals+deadlines
 			# Apply the run
 			index = self.getNext()
-			if (index != current and current != None):
-				print(self.intervalText(time, current, start), end="")
-			if (index != current)
+			if (index != current):
+				if (current != None):
+					result += [self.intervalText(time, current, start)]
 				start = time
 				current = index
 			#Update the system and print results
-			print("".join(arrivals), end="")
+			result += arrivals
 			self.updateSystem(index)
 			time += 1
 		# Check system at the end
 		deadlines = self.checkDeadlines(time)
-		print("".join(deadlines))
+		return result+deadlines
 
 	def initStructure(self):
 		# Init structure before the execution
@@ -92,15 +93,22 @@ class Simulator:
 			self._structure[i][4] += 1
 
 
-	# Print results
+	# Get results
+	def printResult(self,start,stop):
+		print("".join(self.plot(start,stop)),end="")
+
 	def intervalText(self, time, index, start):
 		return (str(start)+"-"+str(time)+": T"+str(index+1)+"J"+str(self._counterJobs[index]+1)+'\n')
 
 	def deadlinemissText(self, time, index, counter):
-		return (str(time)+" : Job T"+str(index+1)+"J"+str(counter)+" : misses a deadline"+'\n')
+		return (str(time)+": Job T"+str(index+1)+"J"+str(counter)+" : misses a deadline"+'\n')
 
 	def deadlineText(self, time, index, counter):
-		return (str(time)+" : Deadline of job T"+str(index+1)+"J"+str(counter+1)+'\n')
+		return (str(time)+": Deadline of job T"+str(index+1)+"J"+str(counter+1)+'\n')
 
 	def arrivalText(self, time, current, index, counter):
-		return (str(time)+" : Arrival of job T"+str(index+1)+"J"+str(counter+1)+'\n')
+		return (str(time)+": Arrival of job T"+str(index+1)+"J"+str(counter+1)+'\n')
+
+	def getSchedule(self,interval0,interval1):
+		result = self.plot(interval0,interval1)
+		return result

@@ -8,7 +8,9 @@ from Feasibility.feasibility import Feasibility
 from Simulator.feasibilityInterval import FeasibilityInterval
 from Simulator.simulator import Simulator
 
-#from audsley import Audsley
+from Audsley.audsley import Audsley
+
+from Plotter.plotter import Plotter
 
 import sys
 
@@ -26,10 +28,16 @@ def main():
 		# Simulator part
 		_interval = (FeasibilityInterval(_feasibility.getPeriod,_tasks)).getInterval()
 		_simulator = Simulator(_tasks)
-		_simulator.plot(_interval[0], _interval[1])
+		_simulator.printResult(_interval[0],_interval[1])
+
 		# Execute audsley algorithm
 		#_audsley = Audsley()
 		#_audsley.audsley(_tasks)
+
+		# Plot the result
+		_schedule = _simulator.getSchedule(_interval[0],_interval[1])
+		_plotter = Plotter(_tasks,_schedule,_interval)
+
 	else:
 		print("Arg file is missing")
 
