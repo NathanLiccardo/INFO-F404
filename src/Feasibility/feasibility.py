@@ -12,22 +12,16 @@ class Feasibility:
 
     def lcm(self,values):
         while len(values) > 1:
-            valA = values[0]
-            valB = values[1]
+            values[1] = values[0]*values[1] / self.gcd(values[0], values[1])
             values = values[1:]
-            values[0] = valA*valB / self.gcd(valA, valB)
         return values[0]
 
     def getOmax(self):
-        offsets = []
-        for task in self._tasks:
-            offsets.append(task.getOffset())
+        offsets = [i.getOffset() for i in self._tasks]
         return max(offsets)
 
     def getLcmPeriod(self):
-        period = []
-        for task in self._tasks:
-            period.append(task.getPeriod())
+        period = [i.getPeriod() for i in self._tasks]
         return self.lcm(period)
 
     def getPeriod(self):

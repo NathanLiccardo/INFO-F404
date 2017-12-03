@@ -1,54 +1,17 @@
 #!/usr/bin/python3
 
-from stack import Stack
+from .stack import Stack
 
 class Simulator:
 
-	def __init__(self, start, stop, tasks, period):
-		self._start = start
-		self._stop = stop
+	def __init__(self, tasks):
 		self._tasks = tasks
-		self._inerval = [0]
-		self._period = period
-
-	def getTopValue(self, value):
-		if (value % 1) > 0:
-			return int(value)+1
-		return int(value)
-
-	def calculateS(self, period):
-		self._resultS = []
-		self._resultS.append(self._tasks[0].getOffset())
-		for index in range(1,len(self._tasks)):
-			offset = self._tasks[index].getOffset()
-			period = self._tasks[index].getPeriod()
-			previous = self._resultS[-1]
-			maxPrevious = max(previous - offset, 0)
-			topValue = self.getTopValue( maxPrevious / period )
-			Si = offset + (topValue*period)
-			self._resultS.append(Si)
-		self._interval = [0, self._resultS[-1]+period]
-
-	def utilisation(self):
-		self._use = 0
-		for index in range(len(self._tasks)):
-			task = self._tasks[index]
-			Ci = task.getWcet()
-			Ti = task.getPeriod()
-			self._use += Ci/Ti
-
-	def getInterval(self):
-		self.calculateS(self._period)
-		return (self._interval)
-
 
 	# Structure[i] = [WCET, Period, Deadline, CurrentAdv, WaitingFrom]
 	def plot(self, start, stop):
 		self.initStructure()
-		time = self._interval[0]
-		stop = self._interval[1]
+		time = start
 		current = 0
-		start = 0
 		while( time < stop ):
 			deadlines = self.checkDeadlines(time)
 			arrivals = self.checkArrivals(time)
@@ -128,6 +91,7 @@ class Simulator:
 
 	# Print results
 
+	# Print results
 	def printInterval(self, time, index, start):
 		if (index != None):
 			print(str(start)+"-"+str(time), end="")
@@ -142,14 +106,3 @@ class Simulator:
 
 	def arrivalText(self, time, current, index, counter):
 		return (str(time)+" : Arrival of job T"+str(index+1)+"J"+str(counter+1))
-
-	def printResultsS(self):
-		for index in range(len(self._resultS)):
-			print("S"+str(index+1)+" "+str(self._resultS[index]))
-		print("Interval : [", end="")
-		print(str(self._interval[0]), end="")
-		print(","+str(self._interval[1])+")")
-
-	def printResultU(self):
-		print("Utilisation : ", end="")
-		print(str(self._use))

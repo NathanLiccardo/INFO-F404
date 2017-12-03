@@ -1,25 +1,31 @@
 #!/usr/bin/python3
 
-from file import File
-from feasibility import Feasibility
-from simulator import Simulator
-from audsley import Audsley
+from Files.file import File
+from Files.task import Task
+
+from Feasibility.feasibility import Feasibility
+
+from Simulator.feasibilityInterval import FeasibilityInterval
+from Simulator.simulator import Simulator
+
+#from audsley import Audsley
+
 import sys
 
 def main():
 	if (len(sys.argv) == 2):
+
 		# Open file and get tasks
 		_file = File(sys.argv[1])
 		_tasks = _file.getTasks()
-		_file.close()
+
 		# Write feasibility interval
 		_feasibility = Feasibility(_tasks)
 		_feasibility.printSet()
+
 		# Simulator part
-		_start = _feasibility.getStart()
-		_stop = _feasibility.getStop()
-		_simulator = Simulator(_start, _stop, _tasks, _feasibility.getPeriod())
-		_interval = _simulator.getInterval()
+		_interval = (FeasibilityInterval(_feasibility.getPeriod,_tasks)).getInterval()
+		_simulator = Simulator(_tasks)
 		_simulator.plot(_interval[0], _interval[1])
 		# Execute audsley algorithm
 		#_audsley = Audsley()

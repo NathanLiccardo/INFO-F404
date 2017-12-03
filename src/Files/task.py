@@ -13,7 +13,7 @@ class Task:
 			self._deadline  = int(line[2])
 			self._wcet 		= int(line[3])
 		else:
-			print("input file error")
+			print("Task creation : error")
 
 	def setOffset(self, offset):
 		self._offset = offset
