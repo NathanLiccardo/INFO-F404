@@ -10,129 +10,95 @@ class Simulator:
 	"""
 	Structure[i] = [WCET, Period, Deadline, CurrentAdv, WaitingFrom]
 	"""
-	def plot(self, start, stop, typeDeadlines):
+	def plot(self,start,stop,typeDeadline):
 		result = []
-		# Init variable
-		current = 0
+		current = None
 		time = start
 		self.initStructure()
-		# Time loop
-		while( time < stop ):
-			# checkDeadlines and Arrivals
-			if (typeDeadlines == "hard"):
-				deadlines = self.checkDeadlinesHard(time)
-			else:
-				deadlines = self.checkDeadlinesSoft(time)
+		while (time < stop):
 			arrivals = self.checkArrivals(time)
+			deadlines = self.checkDeadlines(time,typeDeadline)
 			arrivals = arrivals+deadlines
-			# Apply the run
-			index = self.getNext()
+
+			index = None
+			index = self.getNext(time)
+			if (index != current and current != None):
+				result.append(self.intervalText(time, current, start))
 			if (index != current):
-				if (current != None):
-					result += [self.intervalText(time, current, start)]
 				start = time
 				current = index
-			#Update the system and print results
+
 			result += arrivals
-			self.updateSystem(index)
+			self.updateSystem(index,time)
 			time += 1
-		# Check system at the end
-		if (typeDeadlines == "hard"):
-			deadlines = self.checkDeadlinesHard(time)
-		else:
-			deadlines = self.checkDeadlinesSoft(time)
+
+		deadlines = self.checkDeadlines(time,typeDeadline)
 		return result+deadlines
 
 	def initStructure(self):
-		# Init structure before the execution
-		self._structure = [[] for i in range(len(self._tasks))]
-		self._counterJobs = [0 for i in range(len(self._tasks))]
+		self._structure = []
 		for index in range(len(self._tasks)):
-			self._structure[index].append(self._tasks[index].getWcet())
-			self._structure[index].append(self._tasks[index].getPeriod())
-			self._structure[index].append(self._tasks[index].getDeadline())
-			self._structure[index].extend((0,0))
+			self._structure.append(self._tasks[index])
 
 	def checkArrivals(self, time):
 		arrivals = []
-		for index in range(len(self._structure)):
-			current = self._structure[index]
-			counter = self._counterJobs[index]
-			if ((current[3] == current[0] and current[4] == current[1]) or \
-				(current[3] == 0 and current[4] == 0)):
-				arrivals.append(self.arrivalText(time, current, index, counter))
+		for task in self._structure:
+			if (task.checkArrival(time)):
+				arrivals.append(self.arrivalText(task,time))
 		return arrivals
 
-
-	def getNext(self):
-		for index in range(len(self._structure)):
-			current = self._structure[index]
-			# Check WCET
-			if (current[3] >= 0 and current[3] < current[0]):
-				return index
-			# Check Period
-			if (current[3] == current[1]):
-				return index
+	def getNext(self,time):
+		for task in self._structure:
+			if (task.wcetNotCompleted() and task.isAvailabe(time)):
+				return task
+			if (task.periodicalEvent() and task.isAvailabe(time)):
+				return task
 		return None
 
-	def checkDeadlinesHard(self, time):
+	def checkDeadlines(self,time,type):
 		deadlines = []
-		for index in range(len(self._structure)):
-			current = self._structure[index]
-			counter = self._counterJobs[index]
-
-			# Check missing deadline
-			if (current[3] < current[0] and current[4] == current[2]):
-				self._counterJobs[index] += 1
-				deadlines.append(self.deadlinemissText(time, index, counter))
-				self._structure[index][3:] = [0,0]
-
-			# Check task complete
-			if (current[3] == current[0] and current[4] == current[1]):
-				self._counterJobs[index] += 1
-				deadlines.append(self.deadlineText(time, index, counter))
-				self._structure[index][3:] = [0,0]
+		for task in self._structure:
+			# End of the deadline
+			if (task.getWatingTime() == task.getDeadline()):
+				deadlines.append(self.deadlineText(task,time))
+			# Task completed
+			if (task.isComplete() and task.getWatingTime() >= task.getPeriod()):
+				task.resetCounter()
+			# Task not completed
+			if (not(task.isComplete()) and (type == "hard") and task.getWatingTime() > task.getDeadline()):
+				deadlines.append(self.deadlineMissHardText(task,time))
+			if (not(task.isComplete()) and (type == "soft") and task.getWatingTime() > task.getDeadline()):
+				deadlines.append(self.deadlineMissSoftText(task,time))
 		return deadlines
 
-	def checkDeadlinesSoft(self, time):
-		deadlines = []
+	# Update the system : 1 time over
+	def updateSystem(self,task,time):
 		for index in range(len(self._structure)):
-			current = self._structure[index]
-			counter = self._counterJobs[index]
-
-			# Check missing deadline
-			if (current[3] < current[0] and current[4] == current[2]):
-				deadlines.append(self.deadlinemissText(time, index, counter))
-
-			# Check task complete
-			if (current[3] == current[0] and current[4] == current[1]):
-				self._counterJobs[index] += 1
-				deadlines.append(self.deadlineText(time, index, counter))
-				self._structure[index][3:] = [0,0]
-		return deadlines
-
-	def updateSystem(self, index):
-		for i in range(len(self._structure)):
-			if (index != None and i == index):
-				self._structure[index][3] += 1
-			self._structure[i][4] += 1
-
+			t = self._structure[index]
+			if (task != None and t.getId() == task.getId()):
+				t.setExecution(1)
+			if (t.isAvailabe(time)):
+				t.setWaitingTime(1)
+			self._structure[index] = t
 
 	# Get results
-	def printResult(self,start,stop):
-		print("".join(self.plot(start,stop,"hard")),end="")
+	def printResult(self,start,stop,type):
+		print("".join(self.plot(start,stop,type)),end="")
 
-	def intervalText(self, time, index, start):
-		return (str(start)+"-"+str(time)+": T"+str(index+1)+"J"+str(self._counterJobs[index]+1)+'\n')
+	def intervalText(self,time,task,start):
+		return (str(start)+"-"+str(time)+": T"+str(task.getIndex())+"J"+str(task.getJob())+"\n")
 
-	def deadlinemissText(self, time, index, counter):
-		return (str(time)+": Job T"+str(index+1)+"J"+str(counter)+" : misses a deadline"+'\n')
+	def deadlineMissSoftText(self,task,time):
+		return (str(time)+task.getDeadlineMissSoftText()+"\n")
 
-	def deadlineText(self, time, index, counter):
-		return (str(time)+": Deadline of job T"+str(index+1)+"J"+str(counter+1)+'\n')
+	def deadlineMissHardText(self,task,time):
+		return (str(time)+task.getDeadlineMissHardText()+"\n")
 
-	def arrivalText(self, time, current, index, counter):
-		return (str(time)+": Arrival of job T"+str(index+1)+"J"+str(counter+1)+'\n')
+	def deadlineText(self,task,time):
+		return (str(time)+task.getDeadlineText()+"\n")
+
+	def arrivalText(self,task,time):
+		return (str(time)+task.getArrivalText()+"\n")
 
 	def getSchedule(self,interval0,interval1,type):
 		result = self.plot(interval0,interval1,type)
