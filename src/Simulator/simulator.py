@@ -7,17 +7,15 @@ class Simulator:
 	def __init__(self, tasks):
 		self._tasks = tasks
 
-	"""
-	Structure[i] = [WCET, Period, Deadline, CurrentAdv, WaitingFrom]
-	"""
 	def plot(self,start,stop,typeDeadline):
 		result = []
 		current = None
 		time = start
 		self.initStructure()
 		while (time < stop):
-			arrivals = self.checkArrivals(time)
+
 			deadlines = self.checkDeadlines(time,typeDeadline)
+			arrivals = self.checkArrivals(time)
 			arrivals = arrivals+deadlines
 
 			index = None
@@ -44,6 +42,7 @@ class Simulator:
 		arrivals = []
 		for task in self._structure:
 			if (task.checkArrival(time)):
+				task.resetCounter()
 				arrivals.append(self.arrivalText(task,time))
 		return arrivals
 
@@ -61,14 +60,9 @@ class Simulator:
 			# End of the deadline
 			if (task.getWatingTime() == task.getDeadline()):
 				deadlines.append(self.deadlineText(task,time))
-			# Task completed
-			if (task.isComplete() and task.getWatingTime() >= task.getPeriod()):
-				task.resetCounter()
 			# Task not completed
-			if (not(task.isComplete()) and (type == "hard") and task.getWatingTime() > task.getDeadline()):
-				deadlines.append(self.deadlineMissHardText(task,time))
-			if (not(task.isComplete()) and (type == "soft") and task.getWatingTime() > task.getDeadline()):
-				deadlines.append(self.deadlineMissSoftText(task,time))
+			if (not(task.isComplete) and task.getWatingTime() > task.getDeadline()):
+				deadlines.append(self.deadlineMiss(task,time))
 		return deadlines
 
 	# Update the system : 1 time over
@@ -88,11 +82,8 @@ class Simulator:
 	def intervalText(self,time,task,start):
 		return (str(start)+"-"+str(time)+": T"+str(task.getIndex())+"J"+str(task.getJob())+"\n")
 
-	def deadlineMissSoftText(self,task,time):
-		return (str(time)+task.getDeadlineMissSoftText()+"\n")
-
-	def deadlineMissHardText(self,task,time):
-		return (str(time)+task.getDeadlineMissHardText()+"\n")
+	def deadlineMiss(self,task,time):
+		return (str(time)+task.getDeadlineMiss()+"\n")
 
 	def deadlineText(self,task,time):
 		return (str(time)+task.getDeadlineText()+"\n")

@@ -4,7 +4,7 @@ class Task:
 
 	def __init__(self, id, line):
 		self._id = id
-		self._job = 1
+		self._job = 0
 		self._execution = 0
 		self._waitingTime = 0
 		self.checkLine(line)
@@ -72,12 +72,8 @@ class Task:
 	def getArrivalText(self):
 		return ": Arrival of job T"+str(self._id)+"J"+str(self._job)
 
-	def getDeadlineMissSoftText(self):
+	def getDeadlineMissText(self):
 		return ": Job T"+str(self._id)+"J"+str(self._job)+" : misses a deadline"
-
-	def getDeadlineMissHardText(self):
-		result = ": Job T"+str(self._id)+"J"+str(self._job)+" : misses a deadline"
-		return result
 
 	def getDeadlineText(self):
 		result = ": Deadline of job T"+str(self._id)+"J"+str(self._job)
@@ -85,12 +81,12 @@ class Task:
 
 	# Check conditions
 	def checkArrival(self, time):
-		return (time == self._offset or self._period == self._waitingTime)
+		if (time == self._offset or self._period == self._waitingTime):
+			self._job += 1
+			return True
+		return False
 
-	def deadlineMissSoft(self):
-		return (self._waitingTime >= self._deadline and self._execution < self._wcet)
-
-	def deadlineMissHard(self):
+	def deadlineMiss(self):
 		return (self._waitingTime >= self._deadline and self._execution < self._wcet)
 
 	def deadline(self):
