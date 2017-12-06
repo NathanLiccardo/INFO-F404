@@ -26,18 +26,18 @@ def main():
 		_feasibility.printSet()
 
 		# Simulator part
-		_interval = (FeasibilityInterval(_feasibility.getPeriod,_tasks)).getInterval()
-		_simulator = Simulator(_tasks)
+		#_interval = (FeasibilityInterval(_feasibility.getPeriod,_tasks)).getInterval()
+		#_simulator = Simulator(_tasks)
 		#_simulator.printResult(_interval[0],_interval[1],"hard")
-		_simulator.printResult(0,400,"hard")
+		#_simulator.printResult(0,400,"hard")
 
 		# Execute audsley algorithm
-		#_audsley = Audsley()
-		#_audsley.audsley(_tasks, [0,400])
+		_audsley = Audsley()
+		_audsley.audsley(_tasks, [0,400])
 
 		# Plot the result
-		_schedule = _simulator.getSchedule(_interval[0],_interval[1],"hard")
-		_plotter = Plotter(_tasks,_schedule,_interval)
+		#_schedule = _simulator.getSchedule(_interval[0],_interval[1],"hard")
+		#_plotter = Plotter(_tasks,_schedule,_interval)
 
 	else:
 		print("Arg file is missing")

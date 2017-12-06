@@ -9,45 +9,57 @@ class Audsley:
 	def __init__(self):
 		self._space = 0
 
-	def getAllPossibility(self,tasks):
-		return list(itertools.permutations(tasks))
+	def getAllPossibility(self,tasks,task):
+		result = []
+		for item in list(itertools.permutations(tasks)):
+			result.append(list(item)+[task])
+		return result
 
-	def noMissIn(self,result, tasks):
-		print("".join(result),end="\n")
-		for i in result:
-			if (("misses" in i) and ("T"+str(tasks) in i)):
+	def resetTask(self, tasks, task):
+		for index in range(len(tasks)):
+			tasks[index].resetAll()
+		return (tasks, task)
+
+
+	def noMissIn(self,result, task):
+		for line in result:
+			if ("T"+str(task.getId()) in line and "misses" in line):
 				return False
 		return True
 
-	def isLowesPriorityViable(self,index,tasks,interval):
-		# TODO : return if the task is LPV
-		lenTasks = len(tasks)
-		save = tasks[index]
-		if (index < len(tasks)-1):
-			tasks = tasks[:index]+tasks[index+1:]
-		else:
-			tasks = tasks[:-1]
-		permutations = self.getAllPossibility(tasks)
-		for i in permutations:
-			result = Simulator(list(i)+[save])
-			result = result.getSchedule(interval[0],interval[1],"soft")
-			if (self.noMissIn(result,lenTasks)): return True
+	def isLowestPriorityViable(self,tasks,task,interval):
+		allPossibilities = self.getAllPossibility(tasks,task)
+		for current in allPossibilities:
+			simulation = Simulator(current)
+			simulation = simulation.getSchedule(interval[0],interval[1],"soft")
+			tasks, task = self.resetTask(tasks, task)
+			if (self.noMissIn(simulation,task)):
+				return True
 		return False
 
 	def audsley(self, tasks, interval):
 
 		for index in range(len(tasks)):
-			if (self.isLowesPriorityViable(index, tasks, interval)):
-				print(self._space*" ", end="")
-				print("Task "+str(tasks[index].getIndex()), end="")
-				print(" : is lowest priority viable")
+			task = tasks[index]
+			tasks.remove(tasks[index])
+			if (self.isLowestPriorityViable(tasks, task, interval)):
+				self.printIsLowest(task)
 				self._space += 1
-				if (index != len(tasks)-1):
-					self.audsley(tasks[:index]+tasks[index+1:],interval)
-				else:
-					self.audsley(tasks[:index],interval)
+				self.audsley(tasks,interval)
 				self._space -= 1
 			else:
-				print(self._space*" ", end="")
-				print("Task "+str(tasks[index].getIndex()), end="")
-				print(" : is not lowest priority viable")
+				self.printIsNotLowest(task)
+			tasks.insert(index,task)
+
+	# Print Results
+	def printIsLowest(self,task):
+		print(self._space*" ", end="")
+		print("Task "+str(task.getIndex()), end="")
+		print(" : is lowest priority viable ")
+		#print("("+task.toString()+")")
+
+	def printIsNotLowest(self,task):
+		print(self._space*" ", end="")
+		print("Task "+str(task.getIndex()), end="")
+		print(" : is not lowest priority viable")
+		#print("("+task.toString()+")")

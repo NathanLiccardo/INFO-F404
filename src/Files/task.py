@@ -79,6 +79,9 @@ class Task:
 		result = ": Deadline of job T"+str(self._id)+"J"+str(self._job)
 		return result
 
+	def toString(self):
+		return str(self._offset)+" "+str(self._period)+" "+str(self._deadline)+" "+str(self._wcet)
+
 	# Check conditions
 	def checkArrival(self, time):
 		if (time == self._offset or self._period == self._waitingTime):
@@ -111,3 +114,11 @@ class Task:
 	def resetCounter(self):
 		self._waitingTime = 0
 		self._execution = 0
+
+	def resetAll(self):
+		self._waitingTime = 0
+		self._execution = 0
+		self._job = 0
+
+	def complete(self):
+		self._execution = self._wcet

@@ -61,8 +61,10 @@ class Simulator:
 			if (task.getWatingTime() == task.getDeadline()):
 				deadlines.append(self.deadlineText(task,time))
 			# Task not completed
-			if (not(task.isComplete) and task.getWatingTime() > task.getDeadline()):
+			if (not(task.isComplete()) and task.getWatingTime() >= task.getDeadline()):
 				deadlines.append(self.deadlineMiss(task,time))
+				if (type == "hard"):
+					task.complete()
 		return deadlines
 
 	# Update the system : 1 time over
@@ -83,7 +85,7 @@ class Simulator:
 		return (str(start)+"-"+str(time)+": T"+str(task.getIndex())+"J"+str(task.getJob())+"\n")
 
 	def deadlineMiss(self,task,time):
-		return (str(time)+task.getDeadlineMiss()+"\n")
+		return (str(time)+task.getDeadlineMissText()+"\n")
 
 	def deadlineText(self,task,time):
 		return (str(time)+task.getDeadlineText()+"\n")
