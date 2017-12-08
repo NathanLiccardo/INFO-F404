@@ -2,11 +2,8 @@
 
 class Task:
 
-	def __init__(self, id, line):
+	def __init__(self, id = 0, line = [0,0,0,0]):
 		self._id = id
-		#self._job = 1
-		#self._execution = 0
-		#self._waitingTime = 0
 		self._numberOfJob = 0
 		self.checkLine(line)
 
@@ -35,6 +32,13 @@ class Task:
 	def setWcet(self, wcet):
 		self._wcet = wcet
 
+	def setAll(self,id, offset,period,deadline,wcet):
+		self.setId(id)
+		self.setOffset(id)
+		self.setPeriod(period)
+		self.setDeadline(deadline)
+		self.setWcet(wcet)
+
 	# Getters
 	def getId(self):
 		return self._id
@@ -51,10 +55,6 @@ class Task:
 	def getWcet(self):
 		return self._wcet
 
-	# Get conditions texts
-	def toString(self):
-		return str(self._offset)+" "+str(self._period)+" "+str(self._deadline)+" "+str(self._wcet)
-
 	# Check conditions
 	def isAvailabe(self,time):
 		return (self._offset <= time)
@@ -68,3 +68,7 @@ class Task:
 
 	def resetAll(self):
 		self._numberOfJob = 0
+
+	# Get conditions texts
+	def toString(self):
+		return str(self._offset)+" "+str(self._period)+" "+str(self._deadline)+" "+str(self._wcet)

@@ -12,6 +12,8 @@ from Audsley.audsley import Audsley
 
 from Plotter.plotter import Plotter
 
+from Generator.utilisation import Utilisation
+
 import sys
 
 def main():
@@ -32,12 +34,16 @@ def main():
 		#_simulator.printResult(0,400,"hard")
 
 		# Execute audsley algorithm
-		_audsley = Audsley()
-		_audsley.audsley(_tasks, [0,400])
+		#_audsley = Audsley()
+		#_audsley.audsley(_tasks, [0,400])
 
 		# Plot the result
 		#_schedule = _simulator.getSchedule(_interval[0],_interval[1],"hard")
 		#_plotter = Plotter(_tasks,_schedule,_interval)
+
+		# Random utilisation
+		utilisation = Utilisation(6,70)
+		utilisation.printSystem()
 
 	else:
 		print("Arg file is missing")
