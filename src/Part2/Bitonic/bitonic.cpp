@@ -1,9 +1,6 @@
 //
-//  test.cpp
+//  bitonic.cpp
 //  Bitonic
-//
-//  Created by Nathan Liccardo on 9/12/17.
-//  Copyright © 2017 Nathan Liccardo. All rights reserved.
 //
 
 #include "bitonic.hpp"
